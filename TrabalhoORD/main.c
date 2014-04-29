@@ -101,7 +101,8 @@ int main()
         printf("2 - Inserir novo registro\n");
         printf("3 - Remover registro existente\n");
         printf("4 - Pesquisas e Relatorios\n");
-        printf("5 - Sair\n");
+        printf("5 - Compctar arquivo \n");
+        printf("6 - Sair\n");
 
         printf("\nSelecione uma opcao: ");
         fflush(stdin);
@@ -123,16 +124,24 @@ int main()
             printf("\n");
             ExcluirAluno();
             MontarIndices();
+            printf("Registro removido com sucesso.");
             break;
         case '4':
             printf("\n");
             ImprimirBuscas();
             break;
+
+        case '5':
+            printf("\n");
+            CompactarArquivo();
+            MontarIndices();
+            printf("Arquivo compactado com sucesso.");
+            break;
         }
         printf("\n\nPressione <ENTER> para continuar...");
         getch();
-    } while (opcao != '5');
-    CompactarArquivo();
+    } while (opcao != '6');
+
     EncerrarListas();
     printf("\n\nListas e Indices gerados, pressione algo...");
     getch();

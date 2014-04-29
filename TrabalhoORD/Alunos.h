@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#define A_AUXILIAR "PAUXILIAR.TXT"
 #define A_PRINCIPAL "PRINCIPAL.TXT"
 #define A_DADOS "dados.txt"
 #define TAM_FIELD 50
@@ -224,5 +225,36 @@ void RemoverAluno (Aluno a) {
 }
 
 void CompactarArquivo() {
+    FILE *arquivo;
+    FILE *arquivoAux;
+
+    if ((arquivoAux = fopen(A_AUXILIAR, "w+")) == NULL) {
+            system("cls");
+            printf("\nNenhum registro aux\n");
+            getch();
+            }
+    if ((arquivo = fopen(A_PRINCIPAL, "r+")) == NULL) {
+                system("cls");
+                printf("\nNenhum registro encontrado\n");
+                getch();
+                }
+    rewind(arquivo);
+    char recBuff[TAM_REGISTRO];
+    char recTamBuff[4];
+    char field[TAM_FIELD];
+    int i;
+    while ((fgets(recTamBuff, 4, arquivo)!=NULL)) {
+            int tamanhoLeitura = atoi(recTamBuff);
+            fgets(recBuff, tamanhoLeitura+1, arquivo);
+            if (recBuff[0] != '*') {
+                fwrite(recTamBuff, 1, strlen(recTamBuff), arquivoAux);
+                fwrite(recBuff, 1, tamanhoLeitura, arquivoAux);
+            }
+    }
+    fclose(arquivo);
+    fclose(arquivoAux);
+
+    remove(A_PRINCIPAL);
+    rename(A_AUXILIAR, A_PRINCIPAL);
 }
 #endif // INDIVUOS_H_INCLUDED
