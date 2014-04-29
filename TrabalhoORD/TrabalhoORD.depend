@@ -1,15 +1,15 @@
 # depslib dependency file v1.0
-1398798433 source:c:\users\eduardo\documents\github\trabalho\trabalhoord\main.c
+1398803742 source:c:\users\eduardo\documents\github\trabalho\trabalhoord\main.c
 	<stdio.h>
 	<stdlib.h>
 	"IndicesAluno.h"
 
-1398800572 c:\users\eduardo\documents\github\trabalho\trabalhoord\indicesaluno.h
+1398804515 c:\users\eduardo\documents\github\trabalho\trabalhoord\indicesaluno.h
 	"Alunos.h"
 	<stdio.h>
 	<stdlib.h>
 
-1398800861 c:\users\eduardo\documents\github\trabalho\trabalhoord\alunos.h
+1398802782 c:\users\eduardo\documents\github\trabalho\trabalhoord\alunos.h
 	"IndicesAluno.h"
 	<string.h>
 	<stdlib.h>

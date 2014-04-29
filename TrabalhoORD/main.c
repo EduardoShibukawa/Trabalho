@@ -134,4 +134,6 @@ int main()
     } while (opcao != '5');
     CompactarArquivo();
     EncerrarListas();
+    printf("\n\nListas e Indices gerados, pressione algo...");
+    getch();
 }

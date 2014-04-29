@@ -204,16 +204,18 @@ void MontarIndicePrimario (){
     int i=0;
     rewind(arquivo);
     while (fgets(Buff, 10, arquivo) != NULL) {
-        SubBuff[0] = '\0';
-        SubBuffOffset[0]= '\0';
-            strncpy(SubBuffOffset, &Buff[0], 3);
-            strncpy(SubBuff, &Buff[3], 6);
-            _IndicesPrimario.Indice[i].ByteOffSet = posicaoOffset;
-            inscricao = atoi(SubBuff);
-            _IndicesPrimario.Indice[i].ID = inscricao;
-            i =  i + 1;
-            posicaoOffset += atoi(SubBuffOffset) + 3;
-            fseek(arquivo, posicaoOffset, SEEK_SET);
+        SubBuff[6] = '\0';
+        SubBuffOffset[3]= '\0';
+        strncpy(SubBuffOffset, &Buff[0], 3);
+        strncpy(SubBuff, &Buff[3], 6);
+        if (SubBuff[0] != '*') {
+        _IndicesPrimario.Indice[i].ByteOffSet = posicaoOffset;
+        inscricao = atoi(SubBuff);
+        _IndicesPrimario.Indice[i].ID = inscricao;
+        i =  i + 1;
+        }
+        posicaoOffset += atoi(SubBuffOffset) + 3;
+        fseek(arquivo, posicaoOffset, SEEK_SET);
     };
     _IndicesPrimario.Tamanho = i;
     fclose(arquivo);
