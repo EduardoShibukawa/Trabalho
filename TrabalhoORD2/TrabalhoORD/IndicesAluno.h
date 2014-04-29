@@ -1,14 +1,12 @@
-#ifndef INDICES_H_INCLUDED
-#define INDICES_H_INCLUDED
 #include "Alunos.h"
 #include <stdio.h>
 #include <stdlib.h>
-#define TAM_MAX_ARRAY 1000
 #define I_PRIMARIO "I_PRIMARIO.TXT"
 #define I_NOME "I_NOME.TXT"
 #define I_CURSO "I_CURSO.TXT"
-#define BUSCA_NOME 1
-#define BUSCA_CURSO 2
+#ifndef INDICES_H_INCLUDED
+#define INDICES_H_INCLUDED
+#define TAM_MAX_ARRAY 1000
 
 typedef struct {
     int ByteOffSet;
@@ -79,6 +77,8 @@ void SalvarListasPrimariaDisco(){
             getch();
             return 0;
             }
+
+    int tamanho = 0;
     char registro[TAM_REGISTRO];
     int i;
     for (i = 0;  i <= (_IndicesPrimario.Tamanho-1); i++) {
@@ -93,10 +93,12 @@ void SalvarListaSecundariaDisco(IndicesSecundario IndicesSec, char *FileName){
 
     if ((arquivo = fopen(FileName ,"w+")) == NULL) {
             system("cls");
-            printf("\nErro ao criar indice secundario\n");
+            printf("\nErro ao criar indice primario\n");
             getch();
             return 0;
             }
+
+    int tamanho = 0;
     char registro[TAM_REGISTRO];
     int i;
     for (i = 0;  i <= (IndicesSec.Tamanho-1); i++) {
@@ -206,17 +208,18 @@ void MontarIndicePrimario (){
     while (fgets(Buff, 10, arquivo) != NULL) {
         SubBuff[0] = '\0';
         SubBuffOffset[0]= '\0';
-            strncpy(SubBuffOffset, &Buff[0], 3);
-            strncpy(SubBuff, &Buff[3], 6);
             _IndicesPrimario.Indice[i].ByteOffSet = posicaoOffset;
+            strncpy(SubBuffOffset, &Buff[0], 3);
+            posicaoOffset += atoi(SubBuffOffset) + 3;
+            strncpy(SubBuff, &Buff[3], 6);
             inscricao = atoi(SubBuff);
             _IndicesPrimario.Indice[i].ID = inscricao;
-            i =  i + 1;
-            posicaoOffset += atoi(SubBuffOffset) + 3;
             fseek(arquivo, posicaoOffset, SEEK_SET);
+            i =  i + 1;
     };
     _IndicesPrimario.Tamanho = i;
     fclose(arquivo);
+    //printf("%d",_IndicesPrimario.Indice[0].ID);
 }
 
 void MontarListaInvEIndSecundarios () {
@@ -225,7 +228,6 @@ void MontarListaInvEIndSecundarios () {
     for (i = 0;  i <= (_IndicesPrimario.Tamanho-1); i++){
         _ListaInvertida.Reg[i].ID = _IndicesPrimario.Indice[i].ID;
         a = BuscaAluno(_IndicesPrimario.Indice[i].ByteOffSet);
-
         int findNome = 0;
         int auxNome = 0;
         int n;
@@ -275,72 +277,4 @@ void MontarListaInvEIndSecundarios () {
     }
 }
 
-int BuscaBinariaByteOffSet(int chave){
-    int meio, esquerda = 0;
-    int direita = _IndicesPrimario.Tamanho - 1;
-    while (esquerda <= direita){
-            meio = (esquerda + ((direita - esquerda)/2));
-            if (_IndicesPrimario.Indice[meio].ID < chave) {
-                    esquerda = meio + 1;
-            } else {
-                if (_IndicesPrimario.Indice[meio].ID > chave) {
-                        direita = meio - 1;
-                } else {
-                    return _IndicesPrimario.Indice[meio].ByteOffSet;
-                    }
-            }
-    }
-    return -1;
-}
-
-int BuscaBinariaRRN(char *chave, IndicesSecundario IndicesSec){
-    int  meio, esquerda = 0;
-    int direita = IndicesSec.Tamanho - 1;
-    while (esquerda <= direita){
-            meio = (esquerda + ((direita - esquerda)/2));
-            if (strcmp(IndicesSec.Indice[meio].Valor, chave) == -1) {
-                    esquerda = meio + 1;
-            } else {
-                if (strcmp(IndicesSec.Indice[meio].Valor, chave) == 1) {
-                        direita = meio - 1;
-                } else {
-                    return IndicesSec.Indice[meio].RRN;
-                    }
-            }
-    }
-    return -1;
-}
-
-void ImprimirBuscaSecundaria(char *chave, int IndiceSec) {
-    int ultimoRRN;
-    Aluno a;
-    switch (IndiceSec) {
-    case BUSCA_NOME:
-        ultimoRRN = BuscaBinariaRRN(chave, _IndicesSecNome);
-        if (ultimoRRN == - 1) {
-            a.Inscricao = -1;
-            ImprimirAluno(a);
-        }
-        while (ultimoRRN != - 1) {
-            a = BuscarAlunoChavePrimaria(_ListaInvertida.Reg[ultimoRRN].ID);
-            ImprimirAluno(a);
-            ultimoRRN = _ListaInvertida.Reg[ultimoRRN].ProxRRNNome;
-        }
-        break;
-    case BUSCA_CURSO:
-        ultimoRRN = BuscaBinariaRRN(chave, _IndicesSecCurso);
-        if (ultimoRRN == - 1) {
-            a.Inscricao = -1;
-            ImprimirAluno(a);
-        }
-        while (ultimoRRN != - 1) {
-            a = BuscarAlunoChavePrimaria(_ListaInvertida.Reg[ultimoRRN].ID);
-            ImprimirAluno(a);
-            ultimoRRN = _ListaInvertida.Reg[ultimoRRN].ProxRRNCurso;
-        }
-        break;
-    default:
-        break;
-    }
-}
 #endif // INDICES_H_INCLUDED

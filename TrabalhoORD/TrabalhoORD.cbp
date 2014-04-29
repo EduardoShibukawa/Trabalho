@@ -32,6 +32,10 @@
 			<Add option="-Wall" />
 		</Compiler>
 		<Unit filename="Alunos.h" />
+		<Unit filename="DEFUTILS.h" />
+		<Unit filename="FileIO.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
 		<Unit filename="IndicesAluno.h" />
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />
