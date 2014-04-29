@@ -41,6 +41,13 @@ short pegarCampo(char field[], char recbuff[], short scan_pos, short rec_lgth){
 void ImportarDados (char *FileName) {
     Aluno a;
     FILE *arquivo;
+    if ((arquivo = fopen(A_PRINCIPAL, "w+")) == NULL) {
+                system("cls");
+                printf("\nNenhum registro encontrado\n");
+                getch();
+                }
+    fclose(arquivo);
+
     if ((arquivo = fopen(FileName, "r")) == NULL) {
             system("cls");
             printf("\nNenhum registro encontrado\n");
@@ -89,7 +96,7 @@ void ImportarDados (char *FileName) {
                 a.Nome[0] = '\0';
                 a.Curso[0] = '\0';
                 a.NotaFinal[0] = '\0';
-                recBuff[0] = '\0';
+                recBuff[0] = 'remove( "myfile.txt" ) \0';
                 field[0] = '\0';
                 scan_pos = 0;
                 fld_count = 1;
