@@ -183,7 +183,7 @@ void MontarIndices(){
     IniciarListas();
     MontarIndicePrimario();
     MontarListaInvEIndSecundarios();
-    OrdenarListaPrimaria(_IndicesPrimario.Indice,0,_IndicesPrimario.Tamanho-1);
+    //OrdenarListaPrimaria(_IndicesPrimario.Indice,0,_IndicesPrimario.Tamanho-1);
     OrdenarListaSecundaria(_IndicesSecNome.Indice,0,_IndicesSecNome.Tamanho-1);
     OrdenarListaSecundaria(_IndicesSecCurso.Indice,0,_IndicesSecCurso.Tamanho-1);
 }
@@ -226,11 +226,20 @@ void MontarListaInvEIndSecundarios () {
     int i;
     for (i = 0;  i <= (_IndicesPrimario.Tamanho-1); i++){
         _ListaInvertida.Reg[i].ID = _IndicesPrimario.Indice[i].ID;
-        a = BuscaAluno(_IndicesPrimario.Indice[i].ByteOffSet);
+    }
 
+    OrdenarListaPrimaria(_IndicesPrimario.Indice,0,_IndicesPrimario.Tamanho-1);
+
+    for (i = 0;  i <= (_IndicesPrimario.Tamanho-1); i++){
         int findNome = 0;
         int auxNome = 0;
-        int n;
+        int n,t, rrn = 0;
+        a = BuscaAluno(_IndicesPrimario.Indice[i].ByteOffSet);
+        for(t=0; t<=_IndicesPrimario.Tamanho-1;t++){
+                if(_ListaInvertida.Reg[t].ID == _IndicesPrimario.Indice[i].ID){
+                    rrn = t;
+                }
+        }
         for (n = 0; n <= _IndicesSecNome.Tamanho-1; n++) {
             if (strcmp(a.Nome, _IndicesSecNome.Indice[n].Valor) == 0) {
                     findNome = 1;
@@ -243,13 +252,13 @@ void MontarListaInvEIndSecundarios () {
             while (_ListaInvertida.Reg[ultimoRRN].ProxRRNNome != - 1) {
               ultimoRRN = _ListaInvertida.Reg[ultimoRRN].ProxRRNNome;
             }
-            _ListaInvertida.Reg[ultimoRRN].ProxRRNNome = i;
-            _ListaInvertida.Reg[i].ProxRRNNome = -1;
+            _ListaInvertida.Reg[ultimoRRN].ProxRRNNome = rrn;
+            _ListaInvertida.Reg[rrn].ProxRRNNome = -1;
         }else {
              strncpy(_IndicesSecNome.Indice[n].Valor, a.Nome, TAM_FIELD);
-            _IndicesSecNome.Indice[n].RRN = i;
+            _IndicesSecNome.Indice[n].RRN = rrn;
             _IndicesSecNome.Tamanho = n+1;
-            _ListaInvertida.Reg[i].ProxRRNNome = -1;
+            _ListaInvertida.Reg[rrn].ProxRRNNome = -1;
         }
 
         int findCurso = 0;
@@ -266,14 +275,15 @@ void MontarListaInvEIndSecundarios () {
             while (_ListaInvertida.Reg[ultimoRRN].ProxRRNCurso != - 1) {
               ultimoRRN = _ListaInvertida.Reg[ultimoRRN].ProxRRNCurso;
             }
-            _ListaInvertida.Reg[ultimoRRN].ProxRRNCurso = i;
-            _ListaInvertida.Reg[i].ProxRRNCurso = -1;
+            _ListaInvertida.Reg[ultimoRRN].ProxRRNCurso = rrn;
+            _ListaInvertida.Reg[rrn].ProxRRNCurso = -1;
         }else {
             strncpy(_IndicesSecCurso.Indice[n].Valor, a.Curso, TAM_FIELD);
-            _IndicesSecCurso.Indice[n].RRN = i;
+            _IndicesSecCurso.Indice[n].RRN = rrn;
             _IndicesSecCurso.Tamanho = n+1;
-            _ListaInvertida.Reg[i].ProxRRNCurso = -1;
+            _ListaInvertida.Reg[rrn].ProxRRNCurso = -1;
         }
+
     }
 }
 
