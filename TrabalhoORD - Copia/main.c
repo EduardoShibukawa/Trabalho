@@ -45,7 +45,6 @@ int main()
         printf("3 - Remover registro existente\n");
         printf("4 - Pesquisas e Relatorios\n");
         printf("5 - Sair\n");
-        printf("6 - Busca Aluno teste");
 
         printf("\nSelecione uma opcao: ");
         fflush(stdin);
@@ -54,24 +53,17 @@ int main()
 
         case '1':
             printf("\n");
-            ImportarDados(A_DADOS);
-            MontarIndices();
             break;
 
         case '2':
             printf("\n");
-            CadastrarAluno();
             MontarIndices();
+            //CadastrarAluno();
             break;
 
         case '3':
             printf("\n");
             break;
-
-        case '6':
-            BuscaAluno(0);
         }
     } while (opcao != '5');
-
-    EncerrarListas();
 }
