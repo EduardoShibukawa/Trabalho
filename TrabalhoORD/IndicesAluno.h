@@ -7,6 +7,7 @@
 #define I_PRIMARIO "I_PRIMARIO.TXT"
 #define I_NOME "I_NOME.TXT"
 #define I_CURSO "I_CURSO.TXT"
+#define I_LISTA_INVERTIDA "I_LISTAINV.TXT"
 #define BUSCA_NOME 1
 #define BUSCA_CURSO 2
 
@@ -105,11 +106,28 @@ void SalvarListaSecundariaDisco(IndicesSecundario IndicesSec, char *FileName){
     }
     fclose(arquivo);
 }
+void SalvarListaInvertidaDisco(){
+    FILE *arquivo;
 
+    if ((arquivo = fopen(I_LISTA_INVERTIDA ,"w+")) == NULL) {
+            system("cls");
+            printf("\nErro ao criar indice secundario\n");
+            getch();
+            return 0;
+            }
+    char registro[TAM_REGISTRO];
+    int i;
+    for (i = 0;  i <= (_IndicesPrimario.Tamanho-1); i++) {
+        fprintf(arquivo, "%06d%s%05d%s%05d%s",_ListaInvertida.Reg[i].ID, DELIMITADOR_FIELD,
+                                    _ListaInvertida.Reg[i].ProxRRNNome,DELIMITADOR_FIELD,_ListaInvertida.Reg[i].ProxRRNCurso,"\n");
+    }
+    fclose(arquivo);
+}
 void EncerrarListas () {
     SalvarListasPrimariaDisco();
     SalvarListaSecundariaDisco(_IndicesSecNome, I_NOME);
     SalvarListaSecundariaDisco(_IndicesSecCurso, I_CURSO);
+    SalvarListaInvertidaDisco();
 }
 
 void OrdenarListaPrimaria(IndicePrimario*indice, int esquerda, int direita){

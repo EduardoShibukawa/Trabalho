@@ -227,7 +227,6 @@ void RemoverAluno (Aluno a) {
 void CompactarArquivo() {
     FILE *arquivo;
     FILE *arquivoAux;
-
     if ((arquivoAux = fopen(A_AUXILIAR, "w+")) == NULL) {
             system("cls");
             printf("\nNenhum registro aux\n");

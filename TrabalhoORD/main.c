@@ -12,22 +12,23 @@ void CadastrarAluno () {
     fflush(stdin);
     gets(cInscricao);
     a.Inscricao = atoi(cInscricao);
+    if (BuscarAlunoChavePrimaria(a.Inscricao).Inscricao == -1) {
+        printf("Nome: ");
+        fflush(stdin);
+        gets(a.Nome);
 
-    printf("Nome: ");
-    fflush(stdin);
-    gets(a.Nome);
+        printf("Curso: ");
+        fflush(stdin);
+        gets(a.Curso);
 
-    printf("Curso: ");
-    fflush(stdin);
-    gets(a.Curso);
+        printf("Nota: ");
+        fflush(stdin);
+        gets(a.NotaFinal);
+        InserirAluno(a);
 
-    printf("Nota: ");
-    fflush(stdin);
-    gets(a.NotaFinal);
-
-    InserirAluno(a);
-
-    printf("\nAluno cadastrado: %s", a.Nome);
+        printf("\nAluno cadastrado: %s", a.Nome);
+    }
+    else {printf("\nInscrição %d já cadastrada!", a.Inscricao);}
 }
 
 void ExcluirAluno() {
