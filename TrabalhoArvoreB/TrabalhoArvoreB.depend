@@ -1,0 +1,29 @@
+# depslib dependency file v1.0
+1402011024 source:c:\users\eduardo\documents\github\trabalho\trabalhoarvoreb\main.c
+	"Menu.c"
+	"Testes.c"
+
+1398816190 c:\users\eduardo\documents\github\trabalho\trabalhoarvoreb\indicesaluno.h
+	"Alunos.h"
+	<stdio.h>
+	<stdlib.h>
+
+1398816170 c:\users\eduardo\documents\github\trabalho\trabalhoarvoreb\alunos.h
+	"IndicesAluno.h"
+	<string.h>
+	<stdlib.h>
+	<stdio.h>
+
+1402180458 c:\users\eduardo\documents\github\trabalho\trabalhoarvoreb\arvoreb.h
+	"ArvoreB_Arquivo.h"
+	<stdlib.h>
+	<string.h>
+
+1401594889 c:\users\eduardo\documents\github\trabalho\trabalhoarvoreb\arvoreb_arquivo.h
+
+1401979018 c:\users\eduardo\documents\github\trabalho\trabalhoarvoreb\menu.c
+	<stdio.h>
+	"ArvoreB.h"
+
+1402180470 c:\users\eduardo\documents\github\trabalho\trabalhoarvoreb\testes.c
+

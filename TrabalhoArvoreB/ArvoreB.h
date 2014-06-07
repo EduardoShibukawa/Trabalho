@@ -3,6 +3,7 @@
 
 #include "ArvoreB_Arquivo.h"
 #include <stdlib.h>
+#include <string.h>
 
 //BTREE
 #define MAX_KEYS 4
@@ -15,10 +16,14 @@
 #define KEY_FOUND 1
 #define KEY_NOT_FOUND 0
 // ARQUIVO
-#define A_ARVOREB "ArvoreB.txt"
+#define A_ARVOREB "FUCK.txt"
 #define A_DISPONIVEL "Disponivel.txt"
+#define DELIMITADOR_REGISTRO "|"
+#define DELIMITADOR_REMOVE "*"
+#define DELIMITADOR_INSERE "+"
+#define BYTEOFFSET sizeof(BTPage) + sizeof(DELIMITADOR_REMOVE);
 //OUTROS
-#define NULL -1
+#define NULL_INTERNAL -1
 
 typedef struct{ //Registro
     int chave;
@@ -31,97 +36,149 @@ typedef struct { //BTPage
     int child[MAX_KEYS + 1];
 } BTPage;
 
-
+void InicializarBTPage(BTPage *p) {
+    int i;
+    p->numeroChaves = 0;
+    p->child[0] = NULL_INTERNAL;
+    for (i = 0; i < MAX_KEYS; i++) {
+        p->child[i+1] = NULL_INTERNAL;
+        p->registro[i].chave = NULL_INTERNAL;
+        p->registro[i].byteOffSet = NULL_INTERNAL;
+    }
+}
 //ARQUIVO
-BTPage CarregaPagina(int RRN){
+BTPage *CarregaPagina(int RRN){
     BTPage p;
-    return p;
+    InicializarBTPage(&p);
+    FILE *arquivo;
+    if ((arquivo = fopen(A_ARVOREB ,"r")) == NULL) {
+            system("cls");
+            printf("\nNenhum registro encontrado\n");
+            getch();
+            return &p;
+    }
+    int byteOffSet = (RRN - 1) * BYTEOFFSET;
+    byteOffSet = byteOffSet + sizeof(int);
+    char IsDeleted[1];
+    fseek(arquivo, byteOffSet, SEEK_SET);
+    fread(IsDeleted, sizeof DELIMITADOR_REMOVE, 1, arquivo);
+    if (strcmp(IsDeleted, DELIMITADOR_REMOVE) != 0) {
+        fread(&p, sizeof(BTPage), 1, arquivo);
+    }
+    fclose(arquivo);
+    return &p;
 }
 
-int AtualizarCabecalho(int RRN) {
+void AtualizarCabecalho(int RRN) {
+    FILE *arquivo;
+    if ((arquivo = fopen(A_ARVOREB ,"r+")) == NULL) {
+        if ((arquivo = fopen(A_ARVOREB ,"w+")) == NULL) {
+                system("cls");
+                printf("\nNenhum registro encontrado\n");
+                getch();
+                return 0;
+        }
+    }
+    fseek(arquivo, 0, SEEK_SET);
+    fwrite(&RRN, sizeof(int), 1, arquivo);
+    fclose(arquivo);
 }
 
-int SalvarPagina(BTPage page, int RRN) {
+void SalvarPagina(BTPage *page, int RRN) {
+    FILE *arquivo;
+    if ((arquivo = fopen(A_ARVOREB ,"r+")) == NULL) {
+            system("cls");
+            printf("\nNenhum registro encontrado\n");
+            getch();
+            return 0;
+    }
+
+    int byteOffSet = (RRN - 1) * BYTEOFFSET;
+    byteOffSet = byteOffSet + sizeof(int);
+    fseek(arquivo, byteOffSet, SEEK_SET);
+    fwrite(DELIMITADOR_INSERE, sizeof DELIMITADOR_INSERE, 1, arquivo);
+    fwrite(page, sizeof(BTPage), 1, arquivo);
+    fclose(arquivo);
+}
+
+void RemoverPagina(int RRN) {
+    FILE *arquivo;
+    if ((arquivo = fopen(A_ARVOREB ,"r+")) == NULL) {
+            system("cls");
+            printf("\nNenhum registro encontrado\n");
+            getch();
+            return 0;
+    }
+    int byteOffSet = RRN * (sizeof(BTPage) + sizeof DELIMITADOR_REMOVE);
+    byteOffSet += sizeof RRN;
+    fseek(arquivo, byteOffSet, SEEK_SET);
+    fwrite(DELIMITADOR_REMOVE, sizeof DELIMITADOR_REMOVE, 1, arquivo);
+    fclose(arquivo);
 }
 
 int AchaRRNRaiz(){
     FILE *arquivo;
     if ((arquivo = fopen(A_ARVOREB ,"r")) == NULL) {
-        return AcharRRNDisponivel();
+            return NULL_INTERNAL;
     }
 
-    char recBuff[4];
-    if (fgets(recBuff, 3, arquivo)!=NULL) {
-            recBuff[4] = '/0';
-            return (atoi(recBuff));
-    }
-
+    fseek(arquivo, 0, SEEK_SET);
+    int RRN;
+    fread(&RRN, sizeof(int), 1, arquivo);
     fclose(arquivo);
-
+    return RRN;
 }
 
 int AcharRRNDisponivel(){
+    int RRN;
     FILE *arquivo;
-    if ((arquivo = fopen(A_DISPONIVEL ,"a+")) == NULL) {
+    if ((arquivo = fopen(A_DISPONIVEL ,"r+")) == NULL) {
+        AtualizarRRNDisponivel(2, 0);
+        return 1;
+    }
+    char *Delim = malloc(sizeof(char)* (strlen(DELIMITADOR_REMOVE) + 1));
+    int byteOffSet =  sizeof RRN + sizeof(char) + 1;
+    fseek(arquivo, -byteOffSet, SEEK_END);
+    fread(Delim, sizeof(char), strlen(DELIMITADOR_REMOVE), arquivo);
+    fread(&RRN, sizeof(int), 1, arquivo);
+    if (strcmp(Delim, DELIMITADOR_REMOVE) == 0) {
+        fseek(arquivo, -byteOffSet , SEEK_END);
+    }
+    fclose(arquivo);
+    AtualizarRRNDisponivel(RRN + 1, 0);
+    return RRN;
+}
+
+void AtualizarRRNDisponivel(int RRN, int isDeletedRRN){
+    FILE *arquivo;
+    if ((arquivo = fopen(A_DISPONIVEL ,"r+")) == NULL) {
         if ((arquivo = fopen(A_DISPONIVEL ,"w+")) == NULL) {
                 system("cls");
                 printf("\nNenhum registro encontrado\n");
                 getch();
-                return NULL;
+                return 0;
         }
-        else return 1;
     }
-    fseek(arquivo, -3, SEEK_END);
-    char recBuff[4];
-    if (fgets(recBuff, 3, arquivo)!=NULL) {
-            recBuff[4] = '/0';
-            return (atoi(recBuff));
+    char *Delim;
+    if (isDeletedRRN == 1) {
+        fseek(arquivo, 0, SEEK_END);
+        Delim = DELIMITADOR_REMOVE;
     }
-
+    else {
+        fseek(arquivo, 0, SEEK_SET);
+        Delim = DELIMITADOR_REMOVE; // DELIMITADOR_INSERE;
+    }
+    fwrite(Delim, sizeof(char), strlen(Delim), arquivo);
+    fwrite(&RRN, sizeof(int), 1, arquivo);
     fclose(arquivo);
 }
 
-void MontarArvoreB(){
- /*       FILE *arquivo;
-    if ((arquivo = fopen(A_PRINCIPAL ,"r+")) == NULL) {
-            system("cls");
-            printf("\nNenhum registro encontrado\n");
-            getch();
-            return 0;
-            }
-    char Buff[9];
-    char SubBuff[7];
-    char SubBuffOffset[4];
-    int posicaoOffset = 0;
-    int inscricao = 0;
-    int i=0;
-    rewind(arquivo);
-    while (fgets(Buff, 10, arquivo) != NULL) {
-        SubBuff[6] = '\0';
-        SubBuffOffset[3]= '\0';
-     Chave   strncpy(SubBuffOffset, &Buff[0], 3);
-        strncpy(SubBuff, &Buff[3], 6);
-        if (SubBuff[0] != '*') {
-            InserirBTPage(inscricao(SubBuff), byteoffset(SubBuffOffset))
-        _IndicesPrimario.Indice[i].ByteOffSet = posicaoOffset;
-        inscricao = atoi(SubBuff);
-        _IndicesPrimario.Indice[i].ID = inscricao;
-        i =  i + 1;
-        }
-    Chave    posicaoOffset += atoi(SubBuffOffset) + 3;
-        fseek(arquivo, posicaoOffset, SEEK_SET);
-    };
-    _IndicesPrimario.Tamanho = i;
-    fclose(arquivo);chave
-    */
-}
-
 int Buscar(int Chave, int RRN){
-  	if (RRN == NULL){ //se ficar loop infinito, colocar verificação para NULL (ponteiro de pagina nao existente(depois da folha))
+  	if (RRN == NULL_INTERNAL){ //se ficar loop infinito, colocar verificação para NULL (ponteiro de pagina nao existente(depois da folha))
             return (KEY_NOT_FOUND);
     } else {
         BTPage p;
-        //p =carregaBTPage(RRN); //carrega em memoria primaria pagina apontado por RRN
+        p = *CarregaPagina(RRN); //carrega em memoria primaria pagina apontado por RRN
 		int i = 0;
 		int achou = KEY_NOT_FOUND;
 		for (i = 0; ((i <= p.numeroChaves) //p procura Chave na pagina carregada
@@ -136,7 +193,7 @@ int Buscar(int Chave, int RRN){
 		    if (Chave < p.registro[i].chave){//ponteiro = ponteiro para a próxima página da possível ocorrência de Chave
                 RRN = p.child[i];
 		    }else{
-                RRN = p.child[i+1];
+                RRN = p.child[i++];
             }
 			return (Buscar (Chave, RRN));
 		}
@@ -150,43 +207,45 @@ void Insercao(Registro registro){
     crie um arquivo B-tree e coloque a primeira chave na raiz
     recupere o RRN da página raiz do arquivo e armazene em ROOT*/
     int ROOT = AchaRRNRaiz();
-    if (ROOT == NULL) {
+    if (ROOT == NULL_INTERNAL) {
         BTPage p;
+        InicializarBTPage(&p);
         p.numeroChaves = 1;
         p.registro[0] = registro;
-        AtualizarCabecalho(1);
-        SalvarPagina(p,1);
+        ROOT =AcharRRNDisponivel();
+        AtualizarCabecalho(ROOT);
+        SalvarPagina(&p, ROOT);
     }
     else {
-        int PromoChave = 0;
-        int RRNPromoFilha = 0;
-        if (InsercaoInterna(ROOT, registro, PromoChave, RRNPromoFilha) == PROMOTION) {
-            DivisaoRaiz(PromoChave, RRNPromoFilha);
+        Registro RegPromooFilho;
+        RegPromooFilho.byteOffSet = NULL_INTERNAL;
+        RegPromooFilho.chave = NULL_INTERNAL;
+        int RRNPromoFilha = NULL_INTERNAL;
+        if (InsercaoInterna(ROOT, registro, &RegPromooFilho, &RRNPromoFilha) == PROMOTION) {
+            DivisaoRaiz(RegPromooFilho, RRNPromoFilha);
         }
     }
 }
 
-int InsercaoInterna(int RRN, Registro registro, int ChavePromovida, int RRNPromoFilha) {
+int InsercaoInterna(int RRN, Registro registro, Registro *registroPromovido, int *RRNPromoFilha) {
     BTPage p; //carrega em memoria primaria pagina apontado por RRN
-    p = CarregaPagina(RRN);
-    int achou;
-	if (RRN == NULL) { //se ponteiroRaiz nao aponta para nenhuma pagina
-		ChavePromovida = registro.chave;
+    int i = -1;
+    int RRNInicio = RRN;
+    p = *CarregaPagina(RRN);
+    int achou = KEY_NOT_FOUND;
+	if (RRN == NULL_INTERNAL) { //se ponteiroRaiz nao aponta para nenhuma pagina
+		*registroPromovido = registro;
 		return(PROMOTION);
 	} else {
-	    int i;
-        for (i = 0; ((i <= p.numeroChaves) //p procura Chave na pagina carregada
-            && (registro.chave <= p.registro[i].chave )); i++) {
-                if (p.registro[i].chave == registro.chave)
+
+        for (i = 0; ((i < p.numeroChaves) && (registro.chave >= p.registro[i].chave )); i++) { //p procura Chave na pagina carregada
+                if (p.registro[i].chave == registro.chave){
                     achou = KEY_FOUND;
+                }
         }
 
         if (achou == KEY_NOT_FOUND) {
-            if (registro.chave < p.registro[i].chave){//ponteiro = ponteiro para a próxima página da possível ocorrência de Chave
                 RRN = p.child[i];
-            } else {
-                RRN = p.child[i+1];
-            }
         }
 	}
 
@@ -194,35 +253,102 @@ int InsercaoInterna(int RRN, Registro registro, int ChavePromovida, int RRNPromo
 		return(ERROR); //chave ja esta na arvore, retorne uma flag de erro -nao pode inserir 2 chaves iguais
 	}
 
-	int flagRetorno = InsercaoInterna(RRN, registro, ChavePromovida, RRNPromoFilha);//procedimento recursivo
+	int flagRetorno = InsercaoInterna(RRN, registro, registroPromovido, RRNPromoFilha);//procedimento recursivo
+	RRN = RRNInicio;
 
 	if (flagRetorno != PROMOTION) {
 		return(flagRetorno);
 	} else if (p.numeroChaves < MAX_KEYS) {
+
 		/*
 		insere chavePromovida na página P
 		escreve página P em arquivo
 		*/
-		return(NO_PROMOTION);
+        for (i = p.numeroChaves-1;i >= 0; i--) {
+            if (p.numeroChaves == 1) {
+                if (p.registro[i].chave < registroPromovido->chave) {
+                        p.registro[i + 1] = *registroPromovido;
+                        p.child[i+2] = *RRNPromoFilha;
+                }else {
+                    p.registro[i + 1] = p.registro[i];
+                    p.child[i+2] = p.child[i+1];
+                    p.child[i+1] = *RRNPromoFilha;
+                    p.registro[i] = *registroPromovido;
+                }
+            } else {
+                if (p.registro[i].chave < registroPromovido->chave) {
+                        p.registro[i + 1] = *registroPromovido;
+                        p.child[i+2] = *RRNPromoFilha;
+                        i = -1;
+                }else {
+                    p.registro[i + 1] = p.registro[i];
+                    p.registro[i] = registro;
+                    p.child[i+2] = p.child[i+1];
 
+                }
+            }
+        }
+        p.numeroChaves = p.numeroChaves + 1;
+		SalvarPagina(&p, RRNInicio);
+		return(NO_PROMOTION);
     } else { //nao ha espaço em P para key
 		/*
 		realize operação de split em P
 		escreva em arquivo  a nova página e a página P
 		*/
+        BTPage newPage;
+        InicializarBTPage(&newPage);
+		Split(RRN, registro, &p, registroPromovido, RRNPromoFilha, &newPage);
+        SalvarPagina(&newPage, *RRNPromoFilha);
+        SalvarPagina(&p, RRN);
 		return(PROMOTION);
 	}
 }
 
 void DivisaoRaiz(Registro registro, int RRNPRomoFilha) {
     BTPage novaRaiz;
+    InicializarBTPage(&novaRaiz);
     int novoRRNRaiz = AcharRRNDisponivel();
     novaRaiz.numeroChaves = 1;
     novaRaiz.registro[0] = registro;
     novaRaiz.child[0] = AchaRRNRaiz();
     novaRaiz.child[1] = RRNPRomoFilha;
-    SalvarPagina(novaRaiz, novoRRNRaiz);
+    SalvarPagina(&novaRaiz, novoRRNRaiz);
     AtualizarCabecalho(novoRRNRaiz);
+}
+
+void Split (int RRN, Registro registro, BTPage *page, Registro *registroPromovido, int *RRNPromoFilha, BTPage *newPage) {
+    int i;
+    Registro auxReg[MAX_KEYS + 1];
+    int j = 0;
+    int inseriu = 0;
+    for (i = 0; i <= MAX_KEYS; i++) {
+        if ( (j!= 4) && ((registro.chave > page->registro[j].chave) || (inseriu == 1))) {
+            auxReg[i] = page->registro[j];
+
+            page->child[j] = NULL_INTERNAL;
+            page->registro[j].byteOffSet = NULL_INTERNAL;
+            page->registro[j].chave = NULL_INTERNAL;
+            j++;
+        }
+        else {
+            auxReg[i] = registro;
+            page->child[j] = NULL_INTERNAL;
+            inseriu = 1;
+        }
+    }
+
+    for (i = 0; i <= MAX_KEYS; i++) {
+        if (i < 2){
+            page->registro[i] = auxReg[i];
+        } else if ((MAX_KEYS/2) != i ) {
+            newPage->registro[i - 3] = auxReg[i];
+        }
+    }
+    page->numeroChaves = 2;
+    newPage->numeroChaves = 2;
+    *registroPromovido = auxReg[2];
+    *RRNPromoFilha = AcharRRNDisponivel();
 }
 
 #endif // ARVOREB_H_INCLUDED
