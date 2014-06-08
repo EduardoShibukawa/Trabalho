@@ -21,7 +21,7 @@
 #define DELIMITADOR_REGISTRO "|"
 #define DELIMITADOR_REMOVE "*"
 #define DELIMITADOR_INSERE "+"
-#define BYTEOFFSET sizeof(BTPage) + sizeof(DELIMITADOR_REMOVE);
+#define BYTEOFFSET sizeof(BTPage);
 //OUTROS
 #define NULL_INTERNAL -1
 
@@ -34,12 +34,14 @@ typedef struct { //BTPage
     int numeroChaves;
     Registro registro[MAX_KEYS];
     int child[MAX_KEYS + 1];
+    int Deleted;
 } BTPage;
 
 void InicializarBTPage(BTPage *p) {
     int i;
     p->numeroChaves = 0;
     p->child[0] = NULL_INTERNAL;
+    p->Deleted = 0;
     for (i = 0; i < MAX_KEYS; i++) {
         p->child[i+1] = NULL_INTERNAL;
         p->registro[i].chave = NULL_INTERNAL;
@@ -57,13 +59,12 @@ BTPage *CarregaPagina(int RRN){
             getch();
             return &p;
     }
-    int byteOffSet = (RRN - 1) * BYTEOFFSET;
+    int byteOffSet = (RRN  - 1) * BYTEOFFSET;
     byteOffSet = byteOffSet + sizeof(int);
-    char IsDeleted[1];
     fseek(arquivo, byteOffSet, SEEK_SET);
-    fread(IsDeleted, sizeof DELIMITADOR_REMOVE, 1, arquivo);
-    if (strcmp(IsDeleted, DELIMITADOR_REMOVE) != 0) {
-        fread(&p, sizeof(BTPage), 1, arquivo);
+    fread(&p, sizeof(BTPage), 1, arquivo);
+    if (p.Deleted == 1){
+        InicializarBTPage(&p);
     }
     fclose(arquivo);
     return &p;
@@ -96,7 +97,6 @@ void SalvarPagina(BTPage *page, int RRN) {
     int byteOffSet = (RRN - 1) * BYTEOFFSET;
     byteOffSet = byteOffSet + sizeof(int);
     fseek(arquivo, byteOffSet, SEEK_SET);
-    fwrite(DELIMITADOR_INSERE, sizeof DELIMITADOR_INSERE, 1, arquivo);
     fwrite(page, sizeof(BTPage), 1, arquivo);
     fclose(arquivo);
 }

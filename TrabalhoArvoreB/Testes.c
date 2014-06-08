@@ -5,11 +5,21 @@ void ExibeBTPage (BTPage p, int RRN) {
     printf("Filhos %d %d %d %d %d \n", p.child[0], p.child[1], p.child[2], p.child[3], p.child[4]);
 }
 void Testar () {
-
     BTPage p;
     Registro reg;
     int i=1;
-    for (i=1; i<=5; i++) {
+    /*
+    AtualizarCabecalho(1);
+    InicializarBTPage(&p);
+    SalvarPagina(&p, AchaRRNRaiz());
+    SalvarPagina(&p, AcharRRNDisponivel());
+    SalvarPagina(&p, AcharRRNDisponivel());
+    SalvarPagina(&p, AcharRRNDisponivel());
+    SalvarPagina(&p, AcharRRNDisponivel());
+    SalvarPagina(&p, AcharRRNDisponivel());
+    SalvarPagina(&p, AcharRRNDisponivel());
+    */
+    for (i=1; i<=15; i++) {
         reg.byteOffSet = i;
         reg.chave = i;
         Insercao(reg);

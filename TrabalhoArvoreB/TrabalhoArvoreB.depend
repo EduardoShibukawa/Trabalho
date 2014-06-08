@@ -27,3 +27,20 @@
 
 1402180470 c:\users\eduardo\documents\github\trabalho\trabalhoarvoreb\testes.c
 
+1402269911 source:c:\users\admin\documents\github\trabalho\trabalhoarvoreb\main.c
+	"Menu.c"
+	"Testes.c"
+
+1402269910 c:\users\admin\documents\github\trabalho\trabalhoarvoreb\menu.c
+	<stdio.h>
+	"ArvoreB.h"
+
+1402271462 c:\users\admin\documents\github\trabalho\trabalhoarvoreb\arvoreb.h
+	"ArvoreB_Arquivo.h"
+	<stdlib.h>
+	<string.h>
+
+1402269910 c:\users\admin\documents\github\trabalho\trabalhoarvoreb\arvoreb_arquivo.h
+
+1402271471 c:\users\admin\documents\github\trabalho\trabalhoarvoreb\testes.c
+
