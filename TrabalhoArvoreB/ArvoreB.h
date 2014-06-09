@@ -31,10 +31,10 @@ typedef struct{ //Registro
 } Registro;
 
 typedef struct { //BTPage
+    int Deleted;
     int numeroChaves;
     Registro registro[MAX_KEYS];
     int child[MAX_KEYS + 1];
-    int Deleted;
 } BTPage;
 
 void InicializarBTPage(BTPage *p) {
@@ -93,7 +93,6 @@ void SalvarPagina(BTPage *page, int RRN) {
             getch();
             return 0;
     }
-
     int byteOffSet = (RRN - 1) * BYTEOFFSET;
     byteOffSet = byteOffSet + sizeof(int);
     fseek(arquivo, byteOffSet, SEEK_SET);
